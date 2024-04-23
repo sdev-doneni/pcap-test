@@ -1,5 +1,5 @@
 #define ETHER_ADDR_LEN 6
-#define PAYLOAD_MAX_LEN 10
+#define PAYLOAD_MAX_LEN 20
 
 struct libnet_ethernet_hdr
 {

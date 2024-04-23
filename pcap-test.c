@@ -84,6 +84,15 @@ int main(int argc, char* argv[]) {
 
 		printf("[tcp header]\n");
 		printf("src port: %d | dest port: %d\n", ntohs(tcp_hdr->th_sport), ntohs(tcp_hdr->th_dport));
+
+		u_int16_t tcp_hdr_len = ((tcp_hdr->th_flags >> 4) & 0x0F) * 4;
+		const u_char *tcp_payload = packet + sizeof(struct libnet_ethernet_hdr) + sizeof(struct libnet_ipv4_hdr) + tcp_hdr_len;
+		u_int16_t tcp_payload_len = header->caplen - (sizeof(struct libnet_ethernet_hdr) + sizeof(struct libnet_ipv4_hdr) + tcp_hdr_len);
+		if(tcp_payload_len)
+			printf("payload: ");
+		for(int idx = 0; idx < tcp_payload_len && idx < PAYLOAD_MAX_LEN; idx++)
+			printf("%02x ", tcp_payload[idx]);
+		putchar('\n');
 	}
 
 	pcap_close(pcap);
