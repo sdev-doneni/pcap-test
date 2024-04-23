@@ -33,9 +33,9 @@ void printMac(u_int8_t *mac)
 	return;
 }
 
-void printIp(struct in_addr *ip)
+void printIp(struct in_addr ip)
 {
-	printf("%s", inet_ntoa(*ip));
+	printf("%s", inet_ntoa(ip));
 }
 
 int main(int argc, char* argv[]) {
@@ -77,10 +77,13 @@ int main(int argc, char* argv[]) {
 		
 		printf("[ip header]\n");
 		printf("src ip: ");
-		printIp(&ip_hdr->ip_src);
+		printIp(ip_hdr->ip_src);
 		printf(" | dest ip: ");
-		printIp(&ip_hdr->ip_dst);
+		printIp(ip_hdr->ip_dst);
 		printf("\n");
+
+		printf("[tcp header]\n");
+		printf("src port: %d | dest port: %d\n", ntohs(tcp_hdr->th_sport), ntohs(tcp_hdr->th_dport));
 	}
 
 	pcap_close(pcap);
