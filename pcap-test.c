@@ -1,6 +1,8 @@
 #include <pcap.h>
 #include <stdbool.h>
 #include <stdio.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
 #include "libnet_hdr.h"
 
 void usage() {
@@ -25,6 +27,17 @@ bool parse(Param* param, int argc, char* argv[]) {
 	return true;
 }
 
+void printMac(u_int8_t *mac)
+{
+	printf("%02x:%02x:%02x:%02x:%02x:%02x", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+	return;
+}
+
+void printIp(struct in_addr *ip)
+{
+	printf("%s", inet_ntoa(*ip));
+}
+
 int main(int argc, char* argv[]) {
 	if (!parse(&param, argc, argv))
 		return -1;
@@ -45,12 +58,29 @@ int main(int argc, char* argv[]) {
 			printf("pcap_next_ex return %d(%s)\n", res, pcap_geterr(pcap));
 			break;
 		}
-
 		struct libnet_ethernet_hdr *eth_hdr = (struct libnet_ethernet_hdr*)packet;
         struct libnet_ipv4_hdr *ip_hdr = (struct libnet_ipv4_hdr*)(packet + sizeof(struct libnet_ethernet_hdr));
         struct libnet_tcp_hdr *tcp_hdr = (struct libnet_tcp_hdr*)(packet + sizeof(struct libnet_ethernet_hdr) + sizeof(struct libnet_ipv4_hdr));
 
+        if (ip_hdr->ip_p != 6)
+            continue;
+
+		printf("======================================\n");
 		printf("%u bytes captured\n", header->caplen);
+
+		printf("[ehternet header]\n");
+		printf("src mac: ");
+		printMac(eth_hdr->ether_shost);
+		printf(" | dest mac: ");
+		printMac(eth_hdr->ether_dhost);
+		printf("\n");
+		
+		printf("[ip header]\n");
+		printf("src ip: ");
+		printIp(&ip_hdr->ip_src);
+		printf(" | dest ip: ");
+		printIp(&ip_hdr->ip_dst);
+		printf("\n");
 	}
 
 	pcap_close(pcap);
