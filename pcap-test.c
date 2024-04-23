@@ -1,6 +1,7 @@
 #include <pcap.h>
 #include <stdbool.h>
 #include <stdio.h>
+#include "libnet_hdr.h"
 
 void usage() {
 	printf("syntax: pcap-test <interface>\n");
@@ -44,6 +45,11 @@ int main(int argc, char* argv[]) {
 			printf("pcap_next_ex return %d(%s)\n", res, pcap_geterr(pcap));
 			break;
 		}
+
+		struct libnet_ethernet_hdr *eth_hdr = (struct libnet_ethernet_hdr*)packet;
+        struct libnet_ipv4_hdr *ip_hdr = (struct libnet_ipv4_hdr*)(packet + sizeof(struct libnet_ethernet_hdr));
+        struct libnet_tcp_hdr *tcp_hdr = (struct libnet_tcp_hdr*)(packet + sizeof(struct libnet_ethernet_hdr) + sizeof(struct libnet_ipv4_hdr));
+
 		printf("%u bytes captured\n", header->caplen);
 	}
 
